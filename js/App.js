@@ -1,3 +1,5 @@
+const OPERATORS = ["+", "-", "*", "/"];
+
 class Buttons extends React.Component {
   render() {
     return (
@@ -7,7 +9,9 @@ class Buttons extends React.Component {
           className="numbers"
           value="."
           onClick={
-            this.props.currentNumber % 1 == 0 ? this.props.numbers : null
+            this.props.currentNumber.split("").includes(".")
+              ? null
+              : this.props.numbers
           }
         >
           .
@@ -16,7 +20,9 @@ class Buttons extends React.Component {
           id="zero"
           className="numbers"
           value="0"
-          onClick={this.props.currentNumber == 0 ? null : this.props.numbers}
+          onClick={
+            Number(this.props.currentNumber) == 0 ? null : this.props.numbers
+          }
         >
           0
         </button>
@@ -145,8 +151,9 @@ class Calculator extends React.Component {
     super(props);
     this.state = {
       output: "",
-      display: 0,
-      currentNumber: 0
+      display: "",
+      currentNumber: "",
+      calculatorStr: ""
     };
     this.handleNumbers = this.handleNumbers.bind(this);
     this.handleFunctions = this.handleFunctions.bind(this);
@@ -157,40 +164,99 @@ class Calculator extends React.Component {
   handleClear() {
     this.setState({
       output: "",
-      display: 0,
-      currentNumber: 0
+      display: "",
+      currentNumber: "",
+      calculatorStr: ""
     });
   }
 
   handleNumbers(e) {
-    if (e.target.value == "." && this.state.currentNumber == 0) {
+    var endsWith = this.state.output[this.state.output.length - 1];
+    if (OPERATORS.includes(endsWith)) {
       this.setState({
-        output: "0" + e.target.value,
-        display: e.target.value,
-        currentNumber: Number(this.state.output)
-      });
-    } else {
-      this.setState({
-        output: (this.state.output += e.target.value),
-        display: e.target.value,
-        currentNumber: Number(this.state.output)
+        calculatorStr: this.state.calculatorStr.concat(endsWith)
       });
     }
-    console.log(this.state.currentNumber);
+    if (OPERATORS.includes(this.state.display)) {
+      if (e.target.value == "." && this.state.currentNumber == "") {
+        this.setState({
+          output: this.state.output + "0" + e.target.value,
+          display: "" + e.target.value,
+          currentNumber: (this.state.currentNumber += e.target.value)
+        });
+      } else {
+        this.setState({
+          output: (this.state.output += e.target.value),
+          display: "" + e.target.value,
+          currentNumber: (this.state.currentNumber += e.target.value)
+        });
+      }
+    } else {
+      if (e.target.value == "." && this.state.currentNumber == "") {
+        this.setState({
+          output: this.state.output + "0" + e.target.value,
+          display: (this.state.display += e.target.value),
+          currentNumber: (this.state.currentNumber += e.target.value)
+        });
+      } else {
+        this.setState({
+          output: (this.state.output += e.target.value),
+          display: (this.state.display += e.target.value),
+          currentNumber: (this.state.currentNumber += e.target.value)
+        });
+      }
+    }
   }
 
   handleFunctions(e) {
-    this.setState({
-      output: (this.state.output += e.target.value),
-      display: e.target.value,
-      currentNumber: 0
-    });
-    console.log(this.state.currentNumber);
+    var lastNumber = Number(this.state.currentNumber);
+    var endsWith = this.state.output[this.state.output.length - 1];
+    var indexOfEquals = this.state.output.indexOf("=");
+    if (!OPERATORS.includes(endsWith)) {
+      if (indexOfEquals > -1) {
+        this.setState({
+          output: (this.state.display += e.target.value),
+          display: e.target.value,
+          currentNumber: ""
+          // calculatorStr: this.state.calculatorStr.concat(lastNumber)
+        });
+      } else {
+        this.setState({
+          output: this.state.output + e.target.value,
+          display: e.target.value,
+          currentNumber: "",
+          calculatorStr: this.state.calculatorStr.concat(lastNumber)
+        });
+      }
+    } else {
+      this.setState({
+        output: this.state.output.slice(0, -1) + e.target.value,
+        display: e.target.value,
+        currentNumber: "",
+        calculatorStr: this.state.calculatorStr.concat(lastNumber)
+      });
+    }
   }
 
   handleEquals(e) {
+    var lastNumber = Number(this.state.currentNumber);
+    this.setState(
+      {
+        output: (this.state.output += e.target.value),
+        calculatorStr: this.state.calculatorStr.concat(lastNumber)
+      },
+      () => this.calculate()
+    );
+  }
+
+  calculate() {
+    console.log(this.state.calculatorStr);
+    var answer = eval(this.state.calculatorStr);
+    console.log(answer);
     this.setState({
-      output: (this.state.output += e.target.value)
+      output: (this.state.output += answer),
+      display: answer,
+      calculatorStr: String(answer)
     });
   }
 
@@ -201,7 +267,9 @@ class Calculator extends React.Component {
           <div id="calculator">
             <div id="upper">
               <div id="output">{this.state.output}</div>
-              <div id="display">{this.state.display}</div>
+              <div id="display">
+                {this.state.display == "" ? 0 : this.state.display}
+              </div>
             </div>
             <Buttons
               currentNumber={this.state.currentNumber}
