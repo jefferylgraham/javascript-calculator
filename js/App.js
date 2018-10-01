@@ -264,6 +264,9 @@ class Calculator extends React.Component {
     return (
       <div className="container-fluid">
         <div className="row justify-content-center">
+          <h1 class="text-center">React JavaScript Calculator</h1>
+        </div>
+        <div className="row justify-content-center">
           <div id="calculator">
             <div id="upper">
               <div id="output">{this.state.output}</div>

@@ -3,6 +3,8 @@ body {
     height: 100vh;
     margin: 0;
     align-items: center;
+    background: rgb(255,255,255);
+    background: radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(128,83,0,1) 100%); 
 }
 
 @font-face{
@@ -19,12 +21,17 @@ button:hover {
     border: 1px solid gray;
 }
 
+h1 {
+	color: #1b2c42;
+}
+
 #calculator {
 	border: 1px solid gray;
 	padding: 30px 20px;
 	background-color: rgb(27, 44, 66);
     border-radius: 10px;
     width:200px;
+    box-shadow: 10px 10px 5px 0px rgba(0,0,0,0.75);
 }
 
 #upper {
